@@ -1,5 +1,6 @@
 import Loading from './components/Loading';
 import ProductCard from './components/ProductCard';
+import ProductCardBasket, { ItemUpdated } from './components/ProductCardBasket';
 
 function App() {
   const added = (val: boolean) => {
@@ -10,7 +11,7 @@ function App() {
   };
   return (
     <div className="App">
-      <header className="App-header">
+      <header className="grid grid-cols-3 gap-8 p-4">
         <ProductCard
           img="https://dummyimage.com/400x400/28200e/000&text=Unbranded Metal Chair"
           stock={2}
@@ -33,6 +34,20 @@ function App() {
           added={added}
           addedToFav={addedFav}
         />
+        <ProductCardBasket
+          img="https://dummyimage.com/400x400/2ee9f7/000&text=Handcrafted Metal Towels"
+          stock={1000}
+          name="Handcrafted Metal Towels"
+          price={100}
+          description="Porro tempore autem. Sunt molestias qui quod recusandae nemo quia optio. Nostrum aperiam officiis aut reprehenderit illo."
+          favorite={true}
+          disable={false}
+          numItems="10"
+          numItemsUpdated={(result: ItemUpdated) => {
+            console.warn({ result });
+          }}
+        />
+        <Loading />
       </header>
     </div>
   );
