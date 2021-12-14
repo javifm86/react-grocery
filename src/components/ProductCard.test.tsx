@@ -3,10 +3,10 @@ import userEvent from '@testing-library/user-event';
 import ProductCard from './ProductCard';
 
 const added = (val: boolean) => {
-  console.log('Added callback:', val);
+  // console.log('Added callback:', val);
 };
 const addedFav = (val: boolean) => {
-  console.log('Added callback:', val);
+  // console.log('Added callback:', val);
 };
 
 const renderCard = ({
