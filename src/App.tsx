@@ -40,7 +40,6 @@ function App() {
           name="Handcrafted Metal Towels"
           price={100}
           description="Porro tempore autem. Sunt molestias qui quod recusandae nemo quia optio. Nostrum aperiam officiis aut reprehenderit illo."
-          favorite={true}
           disable={false}
           numItems="10"
           numItemsUpdated={(result: ItemUpdated) => {
