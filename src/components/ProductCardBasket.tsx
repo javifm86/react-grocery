@@ -1,4 +1,10 @@
-import { FormEvent, FunctionComponent, useRef, useState } from 'react';
+import {
+  FormEvent,
+  FunctionComponent,
+  useRef,
+  useState,
+  useEffect,
+} from 'react';
 interface ProductCardBasketProps {
   img: string;
   stock: number;
@@ -6,7 +12,6 @@ interface ProductCardBasketProps {
   numItems: string;
   price: number;
   description: string;
-  favorite: boolean;
   disable: boolean;
   numItemsUpdated: (result: ItemUpdated) => void;
 }
@@ -20,7 +25,10 @@ const ProductCardBasket: FunctionComponent<ProductCardBasketProps> = (
   props
 ) => {
   const inputField = useRef<HTMLInputElement>(null);
-  const [stockLeft, setStockLeft] = useState(props.stock);
+  const [stockLeft, setStockLeft] = useState(
+    props.stock - Number(props.numItems)
+  );
+  const [inputCSSClasses, setInputCSSClasses] = useState('border-none');
 
   const add = () => {
     modifyNumItems(1);
@@ -40,7 +48,7 @@ const ProductCardBasket: FunctionComponent<ProductCardBasketProps> = (
 
     if (isInteger && !isNaN(Number(val))) {
       valueItem = Number(val);
-      updateStockLeft(valueItem);
+      error = updateStockLeft(valueItem);
     } else {
       valueItem = null;
       error = true;
@@ -50,19 +58,28 @@ const ProductCardBasket: FunctionComponent<ProductCardBasketProps> = (
       setStockLeft(props.stock);
     }
 
+    if (error) {
+      setInputCSSClasses('border border-solid border-red-600');
+    } else {
+      setInputCSSClasses('border-none');
+    }
+
     props.numItemsUpdated({
       val: valueItem,
       error: error,
     });
   };
-  const updateStockLeft = (numItems: number) => {
+  const updateStockLeft = (numItems: number): boolean => {
     if (numItems > props.stock) {
       setStockLeft(0);
-    } else if (numItems < 0) {
-      setStockLeft(props.stock);
-    } else {
-      setStockLeft(props.stock - numItems);
+      return true;
     }
+    if (numItems < 0) {
+      setStockLeft(props.stock);
+      return true;
+    }
+    setStockLeft(props.stock - numItems);
+    return false;
   };
 
   const modifyNumItems = (num: number): void => {
@@ -79,6 +96,16 @@ const ProductCardBasket: FunctionComponent<ProductCardBasketProps> = (
     }
   };
 
+  useEffect(() => {
+    if (inputField.current) {
+      inputField.current.value = props.numItems;
+    }
+  }, [props.numItems]);
+
+  useEffect(() => {
+    setStockLeft(props.stock - Number(props.numItems));
+  }, [props.numItems, props.stock]);
+
   return (
     <div className="border border-gray-400 rounded-lg shadow-md p-4 bg-white flex items-start h-full">
       {/* Product image */}
@@ -90,14 +117,17 @@ const ProductCardBasket: FunctionComponent<ProductCardBasketProps> = (
 
       {/* Product info */}
       <div className="flex-grow">
-        <div className="font-bold text-base mb-1 text-gray-700 test-name">
+        <div
+          className="font-bold text-base mb-1 text-gray-700"
+          data-testid="name"
+        >
           {props.name}
         </div>
         <div className="flex justify-between items-center mb-2">
-          <div className="text-gray-800 font-bold mb-1 test-price">
-            {props.price}
+          <div className="text-gray-800 font-bold mb-1" data-testid="price">
+            {props.price} €
           </div>
-          <div className="test-stock">{props.stock} in stock</div>
+          <div data-testid="stock">{props.stock} in stock</div>
         </div>
         <div className="flex items-center justify-between">
           <form>
@@ -106,26 +136,32 @@ const ProductCardBasket: FunctionComponent<ProductCardBasketProps> = (
                 className="hover:bg-gray-200 text-gray-800 font-bold py-1 px-2 w-8 text-center"
                 type="button"
                 onClick={substract}
+                disabled={props.disable ? true : false}
+                data-testid="substractButton"
               >
                 -
               </button>
               <input
                 required
                 onChange={updatedNumItemsHandler}
-                className="appearance-none border-none text-gray-700 py-1 px-2 leading-tight w-12 text-center"
+                className={`appearance-none text-gray-700 py-1 px-2 leading-tight w-12 text-center ${inputCSSClasses}`}
                 type="text"
+                data-testid="input"
+                disabled={props.disable ? true : false}
                 ref={inputField}
               />
               <button
                 className="hover:bg-gray-200 text-gray-800 font-bold py-1 px-2 w-8 text-center"
                 type="button"
                 onClick={add}
+                disabled={props.disable ? true : false}
+                data-testid="addButton"
               >
                 +
               </button>
             </div>
           </form>
-          <div className="test-left">{stockLeft} left</div>
+          <div data-testid="stockleft">{stockLeft} left</div>
         </div>
       </div>
     </div>
