@@ -1,8 +1,26 @@
-import React, { FunctionComponent } from 'react';
-import Loading from '../components/Loading/Loading';
+import React, { FunctionComponent, useEffect } from 'react';
+import Loading from '../../components/Loading/Loading';
+import ProductList from './ProductList/ProductList';
+import productService from '../../services/products';
 interface MainPageProps {}
 
 const MainPage: FunctionComponent<MainPageProps> = () => {
+  const loadListProduct = () => {
+    productService
+      .get()
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((e) => {
+        console.log('Error!');
+      })
+      .finally(() => {});
+  };
+
+  useEffect(() => {
+    loadListProduct();
+  }, []);
+
   return (
     <div className="flex">
       {/* Product list section */}
@@ -44,9 +62,9 @@ const MainPage: FunctionComponent<MainPageProps> = () => {
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
               </svg>
@@ -67,7 +85,7 @@ const MainPage: FunctionComponent<MainPageProps> = () => {
         </div>
 
         {/* Product list and pagination */}
-
+        <ProductList />
         <div className="flex items-center justify-center text-xl text-gray-700">
           <button
             type="button"
