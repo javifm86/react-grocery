@@ -1,25 +1,20 @@
 import React, { FunctionComponent, useEffect } from 'react';
 import Loading from '../../components/Loading/Loading';
 import ProductList from './ProductList/ProductList';
-import productService from '../../services/products';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../store';
+import { getProducts } from '../../store/product-actions';
 interface MainPageProps {}
 
 const MainPage: FunctionComponent<MainPageProps> = () => {
-  const loadListProduct = () => {
-    productService
-      .get()
-      .then((response) => {
-        console.log(response);
-      })
-      .catch((e) => {
-        console.log('Error!');
-      })
-      .finally(() => {});
-  };
+  const dispatch = useDispatch();
+  const { products, error, loading } = useSelector(
+    (state: RootState) => state.products
+  );
 
   useEffect(() => {
-    loadListProduct();
-  }, []);
+    dispatch(getProducts());
+  }, [dispatch]);
 
   return (
     <div className="flex">
@@ -73,39 +68,46 @@ const MainPage: FunctionComponent<MainPageProps> = () => {
         </header>
 
         {/* Error message */}
-        <div
-          className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-8"
-          role="alert"
-        >
-          <p className="font-bold">An error ocurred</p>
-          <p>
-            Product list could not be loaded. Please{' '}
-            <button className="underline">try again later</button>.
-          </p>
-        </div>
+        {!loading && error && (
+          <div
+            className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-8"
+            role="alert"
+          >
+            <p className="font-bold">An error ocurred</p>
+            <p>
+              Product list could not be loaded. Please{' '}
+              <button className="underline">try again later</button>.
+            </p>
+          </div>
+        )}
 
         {/* Product list and pagination */}
-        <ProductList />
-        <div className="flex items-center justify-center text-xl text-gray-700">
-          <button
-            type="button"
-            className="page-button bg-gray-300 px-3 py-2 rounded hover:bg-gray-400 mr-4"
-            aria-label="Previous"
-          >
-            &laquo; Previous
-          </button>
-          <button
-            type="button"
-            className="page-button bg-gray-300 px-3 py-2 rounded hover:bg-gray-400"
-            aria-label="Next"
-          >
-            Next &raquo;
-          </button>
-        </div>
-
-        <div className="h-64 flex justify-center items-center">
-          <Loading />
-        </div>
+        {!loading && !error && (
+          <>
+            <ProductList products={products.slice(0, 10)} />
+            <div className="flex items-center justify-center text-xl text-gray-700">
+              <button
+                type="button"
+                className="page-button bg-gray-300 px-3 py-2 rounded hover:bg-gray-400 mr-4"
+                aria-label="Previous"
+              >
+                &laquo; Previous
+              </button>
+              <button
+                type="button"
+                className="page-button bg-gray-300 px-3 py-2 rounded hover:bg-gray-400"
+                aria-label="Next"
+              >
+                Next &raquo;
+              </button>
+            </div>
+          </>
+        )}
+        {loading && (
+          <div className="h-64 flex justify-center items-center">
+            <Loading />
+          </div>
+        )}
       </section>
 
       {/* Cart section */}
