@@ -1,9 +1,9 @@
+import { Product } from '../models/product.model';
 import http from '../utils/httpCommon';
-// import { GetInfo } from './models';
 
 class ProductsService {
   get() {
-    return http.get<any>('/grocery');
+    return http.get<Product[]>('/grocery');
   }
 }
 
