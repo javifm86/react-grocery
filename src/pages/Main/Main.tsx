@@ -1,29 +1,91 @@
-import React, { FunctionComponent, useEffect } from 'react';
+import { FunctionComponent, useEffect, useRef, useState } from 'react';
 import Loading from '../../components/Loading/Loading';
 import ProductList from './ProductList/ProductList';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store';
-import { getProducts } from '../../store/product-actions';
+import { getProducts, getProductsFavorites } from '../../store/product-actions';
+import { Product } from '../../models/product.model';
+
+import classes from './Main.module.css';
+import { productActions } from '../../store/product-slice';
+
 interface MainPageProps {}
 
 const MainPage: FunctionComponent<MainPageProps> = () => {
+  const ITEMS_PER_PAGE = 12;
   const dispatch = useDispatch();
   const { products, error, loading } = useSelector(
     (state: RootState) => state.products
   );
 
+  const [productsPage, setProductsPage] = useState<Product[]>([]);
+  const [page, setPage] = useState(0);
+  const [lastPage, setLastPage] = useState(0);
+  const [isFavoriteList, setIsFavoriteList] = useState(false);
+  const productListRef = useRef<HTMLDivElement>(null);
+
+  const prevPage = () => {
+    setPage((currentPage) => currentPage - 1);
+    scrollUp();
+  };
+  const nextPage = () => {
+    setPage((currentPage) => currentPage + 1);
+    scrollUp();
+  };
+
+  const scrollUp = () => {
+    if (productListRef.current) {
+      productListRef.current.scrollTo({
+        top: 0,
+        behavior: 'auto',
+      });
+    }
+  };
+
+  const loadFavorites = () => {
+    setPage(0);
+    setIsFavoriteList(true);
+    dispatch(productActions.setLoading(true));
+    dispatch(getProductsFavorites());
+  };
+
+  const loadRegularProducts = () => {
+    setPage(0);
+    setIsFavoriteList(false);
+    dispatch(productActions.setLoading(true));
+    dispatch(getProducts());
+  };
+
   useEffect(() => {
+    setLastPage(Math.ceil(products.length / ITEMS_PER_PAGE) - 1);
+  }, [products]);
+
+  useEffect(() => {
+    const getProductsByPage = (page: number) => {
+      const start = ITEMS_PER_PAGE * page;
+      const end = start + ITEMS_PER_PAGE;
+      setProductsPage(products.slice(start, end));
+    };
+
+    getProductsByPage(page);
+  }, [page, products]);
+
+  useEffect(() => {
+    dispatch(productActions.setLoading(true));
     dispatch(getProducts());
   }, [dispatch]);
 
   return (
     <div className="flex">
       {/* Product list section */}
-      <section className="flex-1 p-8 h-screen overflow-y-auto">
+      <section
+        className="flex-1 p-8 h-screen overflow-y-auto"
+        ref={productListRef}
+      >
         {/* Header with title and nav */}
         <header className="flex justify-between items-center py-3 border-b border-gray-200 mb-8">
           <h1 className="text-3xl font-semibold text-gray-900 leading-tight inline-flex items-center">
-            Favorite Product list
+            {isFavoriteList ? 'Favorite list' : 'Product list'}
             <a href="/cart" className="inline lg:hidden">
               <span className="sr-only">Go to cart</span>
               <svg
@@ -37,7 +99,13 @@ const MainPage: FunctionComponent<MainPageProps> = () => {
             </a>
           </h1>
           <div className="flex p-1 border bg-gray-200 rounded-md">
-            <button type="button" className="px-2 py-1 bg-white rounded shadow">
+            <button
+              type="button"
+              className={`px-2 py-1 rounded ${
+                !isFavoriteList ? 'bg-white rounded' : ''
+              }`}
+              onClick={loadRegularProducts}
+            >
               <span className="sr-only">Regular product list</span>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -48,7 +116,13 @@ const MainPage: FunctionComponent<MainPageProps> = () => {
                 <path d="M506 114H134a6 6 0 0 1-6-6V84a6 6 0 0 1 6-6h372a6 6 0 0 1 6 6v24a6 6 0 0 1-6 6zm6 154v-24a6 6 0 0 0-6-6H134a6 6 0 0 0-6 6v24a6 6 0 0 0 6 6h372a6 6 0 0 0 6-6zm0 160v-24a6 6 0 0 0-6-6H134a6 6 0 0 0-6 6v24a6 6 0 0 0 6 6h372a6 6 0 0 0 6-6zM84 120V72c0-6.627-5.373-12-12-12H24c-6.627 0-12 5.373-12 12v48c0 6.627 5.373 12 12 12h48c6.627 0 12-5.373 12-12zm0 160v-48c0-6.627-5.373-12-12-12H24c-6.627 0-12 5.373-12 12v48c0 6.627 5.373 12 12 12h48c6.627 0 12-5.373 12-12zm0 160v-48c0-6.627-5.373-12-12-12H24c-6.627 0-12 5.373-12 12v48c0 6.627 5.373 12 12 12h48c6.627 0 12-5.373 12-12z" />
               </svg>
             </button>
-            <button type="button" className="px-2 py-1 rounded">
+            <button
+              type="button"
+              className={`px-2 py-1 rounded ${
+                isFavoriteList ? 'bg-white rounded' : ''
+              }`}
+              onClick={loadFavorites}
+            >
               <span className="sr-only">Favorite product list</span>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -84,22 +158,28 @@ const MainPage: FunctionComponent<MainPageProps> = () => {
         {/* Product list and pagination */}
         {!loading && !error && (
           <>
-            <ProductList products={products.slice(0, 10)} />
+            <ProductList products={productsPage} />
             <div className="flex items-center justify-center text-xl text-gray-700">
-              <button
-                type="button"
-                className="page-button bg-gray-300 px-3 py-2 rounded hover:bg-gray-400 mr-4"
-                aria-label="Previous"
-              >
-                &laquo; Previous
-              </button>
-              <button
-                type="button"
-                className="page-button bg-gray-300 px-3 py-2 rounded hover:bg-gray-400"
-                aria-label="Next"
-              >
-                Next &raquo;
-              </button>
+              {page > 0 && productsPage.length > 0 && (
+                <button
+                  type="button"
+                  className={`${classes.pageButton} bg-gray-300 px-3 py-2 rounded hover:bg-gray-400 mr-4`}
+                  aria-label="Previous"
+                  onClick={prevPage}
+                >
+                  &laquo; Previous
+                </button>
+              )}
+              {page !== lastPage && productsPage.length > 0 && (
+                <button
+                  type="button"
+                  className={`${classes.pageButton} bg-gray-300 px-3 py-2 rounded hover:bg-gray-400`}
+                  aria-label="Next"
+                  onClick={nextPage}
+                >
+                  Next &raquo;
+                </button>
+              )}
             </div>
           </>
         )}

@@ -24,3 +24,26 @@ export const getProducts = () => {
       });
   };
 };
+
+export const getProductsFavorites = () => {
+  return async (dispatch: AppDispatch) => {
+    productService
+      .getFavorites()
+      .then((response) => {
+        dispatch(
+          productActions.setProducts({
+            products: response.data,
+            error: false,
+          })
+        );
+      })
+      .catch((error) => {
+        dispatch(
+          productActions.setProducts({
+            products: [],
+            error: true,
+          })
+        );
+      });
+  };
+};

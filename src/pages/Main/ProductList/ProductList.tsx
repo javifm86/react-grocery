@@ -6,8 +6,6 @@ interface ProductListProps {
 }
 
 const ProductList: FunctionComponent<ProductListProps> = ({ products }) => {
-  console.warn(products);
-
   const added = (val: boolean) => {
     console.log('added callback:', val);
   };

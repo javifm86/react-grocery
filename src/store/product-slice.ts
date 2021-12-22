@@ -20,6 +20,9 @@ const productsSlice = createSlice({
       state.error = action.payload.error;
       state.loading = false;
     },
+    setLoading(state, action: PayloadAction<boolean>) {
+      state.loading = action.payload;
+    },
   },
 });
 
