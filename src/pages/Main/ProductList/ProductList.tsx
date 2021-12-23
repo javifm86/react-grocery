@@ -1,16 +1,24 @@
 import { FunctionComponent } from 'react';
+import { useDispatch } from 'react-redux';
 import ProductCard from '../../../components/ProductCard/ProductCard';
 import { Product } from '../../../models/product.model';
+import { cartActions } from '../../../store/cart-slice';
+import { setProductFavorite } from '../../../store/product-actions';
+import { productActions } from '../../../store/product-slice';
 interface ProductListProps {
   products: Product[];
 }
 
 const ProductList: FunctionComponent<ProductListProps> = ({ products }) => {
-  const added = (val: boolean) => {
-    console.log('added callback:', val);
+  const dispatch = useDispatch();
+
+  const added = (val: boolean, product: Product) => {
+    dispatch(cartActions.addToCart(product));
+    dispatch(productActions.addedToBasket(product));
   };
-  const addedFav = (val: boolean) => {
+  const addedFav = (val: boolean, product: Product) => {
     console.log('addedFav callback:', val);
+    dispatch(setProductFavorite(product.id, val));
   };
 
   return (
@@ -31,9 +39,13 @@ const ProductList: FunctionComponent<ProductListProps> = ({ products }) => {
                   price={product.price}
                   description={product.productDescription}
                   inBasket={product.inBasket != null ? product.inBasket : false}
-                  favorite={product.favorite === 1}
-                  added={added}
-                  addedToFav={addedFav}
+                  favorite={product.favorite === '1'}
+                  added={(val: boolean) => {
+                    added(val, product);
+                  }}
+                  addedToFav={(val: boolean) => {
+                    addedFav(val, product);
+                  }}
                 ></ProductCard>
               </article>
             );

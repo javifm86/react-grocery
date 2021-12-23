@@ -1,5 +1,5 @@
 import { AppDispatch } from '.';
-import productService from '../services/products';
+import productService, { UpdateProduct } from '../services/products';
 import { productActions } from './product-slice';
 
 export const getProducts = () => {
@@ -44,6 +44,32 @@ export const getProductsFavorites = () => {
             error: true,
           })
         );
+      });
+  };
+};
+
+export const setProductFavorite = (id: string, putAsFavorite: boolean) => {
+  return async (dispatch: AppDispatch) => {
+    const favorite = putAsFavorite ? 1 : 0;
+    productService
+      .updateProduct(id, {
+        favorite: String(favorite),
+      })
+      .then((response) => {
+        dispatch(
+          productActions.setFavorite({
+            id: response.data.id,
+            favorite: putAsFavorite,
+          })
+        );
+      })
+      .catch((error) => {
+        // dispatch(
+        //   productActions.setProducts({
+        //     products: [],
+        //     error: true,
+        //   })
+        // );
       });
   };
 };

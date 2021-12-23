@@ -9,10 +9,15 @@ interface SliceState {
 
 type setProductsPayload = Pick<SliceState, 'products' | 'error'>;
 
+interface setFavorite {
+  id: string;
+  favorite: boolean;
+}
+
 const initialState: SliceState = { products: [], error: false, loading: true };
 
 const productsSlice = createSlice({
-  name: 'product',
+  name: 'products',
   initialState: initialState,
   reducers: {
     setProducts(state, action: PayloadAction<setProductsPayload>) {
@@ -22,6 +27,24 @@ const productsSlice = createSlice({
     },
     setLoading(state, action: PayloadAction<boolean>) {
       state.loading = action.payload;
+    },
+    addedToBasket(state, action: PayloadAction<Product>) {
+      const productAdded = action.payload;
+      const product = state.products.find(
+        (element) => element.id === productAdded.id
+      );
+      if (product != null) {
+        product.inBasket = true;
+      }
+    },
+    setFavorite(state, action: PayloadAction<setFavorite>) {
+      const productAdded = action.payload;
+      const product = state.products.find(
+        (element) => element.id === productAdded.id
+      );
+      if (product != null) {
+        product.favorite = productAdded.favorite ? '1' : '0';
+      }
     },
   },
 });
