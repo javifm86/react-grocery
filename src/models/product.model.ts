@@ -5,7 +5,7 @@ export interface Product {
   productName: string;
   price: number;
   productDescription: string;
-  favorite: number;
+  favorite: string;
   numItems?: number;
   inBasket?: boolean;
 }
