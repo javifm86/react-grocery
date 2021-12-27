@@ -15,6 +15,7 @@ import { Product } from '../../models/product.model';
 import classes from './Main.module.css';
 import { productActions } from '../../store/product-slice';
 import Cart from '../Cart/Cart';
+import { Link } from 'react-router-dom';
 
 interface MainPageProps {}
 
@@ -107,7 +108,7 @@ const MainPage: FunctionComponent<MainPageProps> = () => {
         <header className="flex justify-between items-center py-3 border-b border-gray-200 mb-8">
           <h1 className="text-3xl font-semibold text-gray-900 leading-tight inline-flex items-center">
             {isFavoriteList ? 'Favorite list' : 'Product list'}
-            <a href="/cart" className="inline lg:hidden">
+            <Link to="/cart" className="inline lg:hidden">
               <span className="sr-only">Go to cart</span>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -117,7 +118,7 @@ const MainPage: FunctionComponent<MainPageProps> = () => {
               >
                 <path d="M24.707 38.101L4.908 57.899c-4.686 4.686-4.686 12.284 0 16.971L185.607 256 4.908 437.13c-4.686 4.686-4.686 12.284 0 16.971L24.707 473.9c4.686 4.686 12.284 4.686 16.971 0l209.414-209.414c4.686-4.686 4.686-12.284 0-16.971L41.678 38.101c-4.687-4.687-12.285-4.687-16.971 0z" />
               </svg>
-            </a>
+            </Link>
           </h1>
           <div className="flex p-1 border bg-gray-200 rounded-md">
             <button
