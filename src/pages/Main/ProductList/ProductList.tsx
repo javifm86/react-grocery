@@ -2,7 +2,6 @@ import { FunctionComponent } from 'react';
 import { useDispatch } from 'react-redux';
 import ProductCard from '../../../components/ProductCard/ProductCard';
 import { Product } from '../../../models/product.model';
-import { cartActions } from '../../../store/cart-slice';
 import { setProductFavorite } from '../../../store/product-actions';
 import { productActions } from '../../../store/product-slice';
 interface ProductListProps {
@@ -13,8 +12,7 @@ const ProductList: FunctionComponent<ProductListProps> = ({ products }) => {
   const dispatch = useDispatch();
 
   const added = (val: boolean, product: Product) => {
-    dispatch(cartActions.addToCart(product));
-    dispatch(productActions.addedToBasket(product));
+    dispatch(productActions.addToCart(product));
   };
   const addedFav = (val: boolean, product: Product) => {
     console.log('addedFav callback:', val);

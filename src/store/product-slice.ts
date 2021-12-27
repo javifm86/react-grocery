@@ -3,6 +3,7 @@ import { Product } from '../models/product.model';
 
 interface SliceState {
   products: Product[];
+  cart: Product[];
   error: boolean;
   loading: boolean;
 }
@@ -14,7 +15,12 @@ interface setFavorite {
   favorite: boolean;
 }
 
-const initialState: SliceState = { products: [], error: false, loading: true };
+const initialState: SliceState = {
+  products: [],
+  cart: [],
+  error: false,
+  loading: true,
+};
 
 const productsSlice = createSlice({
   name: 'products',
@@ -44,6 +50,45 @@ const productsSlice = createSlice({
       );
       if (product != null) {
         product.favorite = productAdded.favorite ? '1' : '0';
+      }
+    },
+    addToCart(state, action: PayloadAction<Product>) {
+      const itemAdded = { ...action.payload };
+      const elemInCart = state.cart.find((elem) => elem.id === itemAdded.id);
+
+      if (elemInCart == null) {
+        itemAdded.numItems = 1;
+        state.cart.push(itemAdded);
+      }
+
+      const product = state.products.find(
+        (element) => element.id === itemAdded.id
+      );
+      if (product != null) {
+        product.inBasket = true;
+      }
+    },
+    removeFromCart(state, action: PayloadAction<Product>) {
+      const itemAdded = { ...action.payload };
+      state.cart = state.cart.filter((elem) => elem.id !== itemAdded.id);
+
+      const product = state.products.find(
+        (element) => element.id === itemAdded.id
+      );
+      if (product != null) {
+        product.inBasket = false;
+      }
+    },
+    updateNumItems(
+      state,
+      action: PayloadAction<{ id: string; newValue: number | undefined }>
+    ) {
+      const elemInCart = state.cart.find(
+        (elem) => elem.id === action.payload.id
+      );
+
+      if (elemInCart != null) {
+        elemInCart.numItems = action.payload.newValue;
       }
     },
   },

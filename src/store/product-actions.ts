@@ -1,5 +1,5 @@
 import { AppDispatch } from '.';
-import productService, { UpdateProduct } from '../services/products';
+import productService from '../services/products';
 import { productActions } from './product-slice';
 
 export const getProducts = () => {
