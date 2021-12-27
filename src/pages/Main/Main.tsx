@@ -8,6 +8,7 @@ import { Product } from '../../models/product.model';
 
 import classes from './Main.module.css';
 import { productActions } from '../../store/product-slice';
+import Cart from '../Cart/Cart';
 
 interface MainPageProps {}
 
@@ -191,9 +192,11 @@ const MainPage: FunctionComponent<MainPageProps> = () => {
       </section>
 
       {/* Cart section */}
-      {/* <section className="hidden lg:inline-flex right-0 bg-gray-200 h-screen overflow-y-auto cart-in-main">
-    <app-cart></app-cart>
-  </section> */}
+      <section
+        className={`hidden lg:inline-flex right-0 bg-gray-200 h-screen overflow-y-auto ${classes.cartInMain}`}
+      >
+        <Cart />
+      </section>
     </div>
   );
 };
