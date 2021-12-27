@@ -1,4 +1,10 @@
-import { FunctionComponent, useEffect, useRef, useState } from 'react';
+import {
+  FunctionComponent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import Loading from '../../components/Loading/Loading';
 import ProductList from './ProductList/ProductList';
 import { useDispatch, useSelector } from 'react-redux';
@@ -15,7 +21,7 @@ interface MainPageProps {}
 const MainPage: FunctionComponent<MainPageProps> = () => {
   const ITEMS_PER_PAGE = 12;
   const dispatch = useDispatch();
-  const { products, error, loading } = useSelector(
+  const { products, error, loading, cart } = useSelector(
     (state: RootState) => state.products
   );
 
@@ -24,6 +30,13 @@ const MainPage: FunctionComponent<MainPageProps> = () => {
   const [lastPage, setLastPage] = useState(0);
   const [isFavoriteList, setIsFavoriteList] = useState(false);
   const productListRef = useRef<HTMLDivElement>(null);
+
+  const isProductInCart = useCallback(
+    (idProduct: string) => {
+      return cart.find((element) => element.id === idProduct) != null;
+    },
+    [cart]
+  );
 
   const prevPage = () => {
     setPage((currentPage) => currentPage - 1);
@@ -65,11 +78,18 @@ const MainPage: FunctionComponent<MainPageProps> = () => {
     const getProductsByPage = (page: number) => {
       const start = ITEMS_PER_PAGE * page;
       const end = start + ITEMS_PER_PAGE;
-      setProductsPage(products.slice(start, end));
+      setProductsPage(
+        products.slice(start, end).map((elem) => {
+          return {
+            ...elem,
+            inBasket: isProductInCart(elem.id),
+          };
+        })
+      );
     };
 
     getProductsByPage(page);
-  }, [page, products]);
+  }, [isProductInCart, page, products]);
 
   useEffect(() => {
     dispatch(productActions.setLoading(true));
