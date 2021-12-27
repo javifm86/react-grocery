@@ -20,6 +20,21 @@ const cartSlice = createSlice({
         state.cart.push(item);
       }
     },
+    removeFromCart(state, action: PayloadAction<Product>) {
+      state.cart = state.cart.filter((elem) => elem.id !== action.payload.id);
+    },
+    updateNumItems(
+      state,
+      action: PayloadAction<{ id: string; newValue: number | undefined }>
+    ) {
+      const elemInCart = state.cart.find(
+        (elem) => elem.id === action.payload.id
+      );
+
+      if (elemInCart != null) {
+        elemInCart.numItems = action.payload.newValue;
+      }
+    },
   },
 });
 
