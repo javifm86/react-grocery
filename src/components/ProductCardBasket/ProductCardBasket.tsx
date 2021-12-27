@@ -4,12 +4,13 @@ import {
   useRef,
   useState,
   useEffect,
+  useCallback,
 } from 'react';
 interface ProductCardBasketProps {
   img: string;
   stock: number;
   name: string;
-  numItems: string;
+  numItems: number | undefined;
   price: number;
   description: string;
   disable: boolean;
@@ -26,7 +27,7 @@ const ProductCardBasket: FunctionComponent<ProductCardBasketProps> = (
 ) => {
   const inputField = useRef<HTMLInputElement>(null);
   const [stockLeft, setStockLeft] = useState(
-    props.stock - Number(props.numItems)
+    props.numItems !== undefined ? props.stock - props.numItems : props.stock
   );
   const [inputCSSClasses, setInputCSSClasses] = useState('border-none');
 
@@ -69,18 +70,21 @@ const ProductCardBasket: FunctionComponent<ProductCardBasketProps> = (
       error: error,
     });
   };
-  const updateStockLeft = (numItems: number): boolean => {
-    if (numItems > props.stock) {
-      setStockLeft(0);
-      return true;
-    }
-    if (numItems < 0) {
-      setStockLeft(props.stock);
-      return true;
-    }
-    setStockLeft(props.stock - numItems);
-    return false;
-  };
+  const updateStockLeft = useCallback(
+    (numItems: number): boolean => {
+      if (numItems > props.stock) {
+        setStockLeft(0);
+        return true;
+      }
+      if (numItems < 0) {
+        setStockLeft(props.stock);
+        return true;
+      }
+      setStockLeft(props.stock - numItems);
+      return false;
+    },
+    [props.stock]
+  );
 
   const modifyNumItems = (num: number): void => {
     let currentVal = inputField.current?.value;
@@ -98,13 +102,16 @@ const ProductCardBasket: FunctionComponent<ProductCardBasketProps> = (
 
   useEffect(() => {
     if (inputField.current) {
-      inputField.current.value = props.numItems;
+      inputField.current.value =
+        props.numItems !== undefined ? String(props.numItems) : '';
     }
   }, [props.numItems]);
 
   useEffect(() => {
-    setStockLeft(props.stock - Number(props.numItems));
-  }, [props.numItems, props.stock]);
+    if (inputField.current) {
+      updateStockLeft(Number(inputField.current.value));
+    }
+  }, [props.stock, updateStockLeft]);
 
   return (
     <div className="border border-gray-400 rounded-lg shadow-md p-4 bg-white flex items-start h-full">
