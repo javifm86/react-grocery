@@ -6,6 +6,7 @@ interface SliceState {
   cart: Product[];
   error: boolean;
   loading: boolean;
+  refresh: boolean;
 }
 
 type setProductsPayload = Pick<SliceState, 'products' | 'error'>;
@@ -20,6 +21,7 @@ const initialState: SliceState = {
   cart: [],
   error: false,
   loading: true,
+  refresh: false,
 };
 
 const productsSlice = createSlice({
@@ -90,6 +92,13 @@ const productsSlice = createSlice({
       if (elemInCart != null) {
         elemInCart.numItems = action.payload.newValue;
       }
+    },
+    paymentReceived(state) {
+      state.cart = [];
+      state.refresh = true;
+    },
+    setRefresh(state, action: PayloadAction<boolean>) {
+      state.refresh = action.payload;
     },
   },
 });

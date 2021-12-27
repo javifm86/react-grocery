@@ -64,12 +64,7 @@ export const setProductFavorite = (id: string, putAsFavorite: boolean) => {
         );
       })
       .catch((error) => {
-        // dispatch(
-        //   productActions.setProducts({
-        //     products: [],
-        //     error: true,
-        //   })
-        // );
+        console.error('Error in set favorites');
       });
   };
 };

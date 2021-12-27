@@ -22,7 +22,7 @@ interface MainPageProps {}
 const MainPage: FunctionComponent<MainPageProps> = () => {
   const ITEMS_PER_PAGE = 12;
   const dispatch = useDispatch();
-  const { products, error, loading, cart } = useSelector(
+  const { products, error, loading, cart, refresh } = useSelector(
     (state: RootState) => state.products
   );
 
@@ -57,19 +57,27 @@ const MainPage: FunctionComponent<MainPageProps> = () => {
     }
   };
 
-  const loadFavorites = () => {
+  const loadFavorites = useCallback(() => {
     setPage(0);
     setIsFavoriteList(true);
     dispatch(productActions.setLoading(true));
     dispatch(getProductsFavorites());
-  };
+  }, [dispatch]);
 
-  const loadRegularProducts = () => {
+  const loadRegularProducts = useCallback(() => {
     setPage(0);
     setIsFavoriteList(false);
     dispatch(productActions.setLoading(true));
     dispatch(getProducts());
-  };
+  }, [dispatch]);
+
+  const refreshPage = useCallback(() => {
+    if (isFavoriteList) {
+      loadFavorites();
+    } else {
+      loadRegularProducts();
+    }
+  }, [isFavoriteList, loadFavorites, loadRegularProducts]);
 
   useEffect(() => {
     setLastPage(Math.ceil(products.length / ITEMS_PER_PAGE) - 1);
@@ -96,6 +104,13 @@ const MainPage: FunctionComponent<MainPageProps> = () => {
     dispatch(productActions.setLoading(true));
     dispatch(getProducts());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (refresh) {
+      refreshPage();
+      dispatch(productActions.setRefresh(false));
+    }
+  }, [dispatch, refresh, refreshPage]);
 
   return (
     <div className="flex">

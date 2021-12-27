@@ -8,6 +8,7 @@ import EmptyCart from '../../components/svg/EmptyCart';
 import { Product } from '../../models/product.model';
 import { RootState } from '../../store';
 import { productActions } from '../../store/product-slice';
+import productService from '../../services/products';
 import classes from './Cart.module.css';
 interface CartProps {}
 
@@ -65,6 +66,20 @@ const Cart: FunctionComponent<CartProps> = () => {
     }, 0);
     setTotal(totalCart);
   }, [cart, checkErrorInBasket, error]);
+
+  const makePayment = () => {
+    const petitions = cart.map((product) => {
+      if (product.numItems === undefined) {
+        return Promise.resolve();
+      }
+      return productService.updateProduct(product.id, {
+        stock: String(product.stock - product.numItems),
+      });
+    });
+    Promise.allSettled(petitions).then(() => {
+      dispatch(productActions.paymentReceived());
+    });
+  };
 
   useEffect(() => {
     updateTotal();
@@ -158,6 +173,7 @@ const Cart: FunctionComponent<CartProps> = () => {
           <button
             type="button"
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full text-center text-xl"
+            onClick={makePayment}
           >
             Make payment
           </button>
